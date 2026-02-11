@@ -2,42 +2,51 @@ import React, { useState, useRef } from 'react';
 
 const ValentineProposal: React.FC = () => {
   const [accepted, setAccepted] = useState(false);
-  const [noPos, setNoPos] = useState({ top: '50%', left: 'calc(50% + 100px)' });
+  // Default position for 'No' button relative to the 'Yes' button
+  const [noPos, setNoPos] = useState<React.CSSProperties>({ 
+    position: 'relative',
+    left: '0px',
+    top: '0px'
+  });
   const [moveCount, setMoveCount] = useState(0);
   const [noVisible, setNoVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const moveNoButton = () => {
+  const moveNoButton = (e: React.MouseEvent | React.TouchEvent) => {
     if (!containerRef.current || !noVisible) return;
 
     if (moveCount < 3) {
       const rect = containerRef.current.getBoundingClientRect();
-      const padding = 80;
-      // Calculate random position within the container bounds
-      const newTop = Math.random() * (rect.height - padding * 2) + padding;
-      const newLeft = Math.random() * (rect.width - padding * 2) + padding;
+      const padding = 100;
       
-      setNoPos({ top: `${newTop}px`, left: `${newLeft}px` });
+      // Calculate a random absolute position within the box
+      const randomX = Math.random() * (rect.width - padding * 2) + padding;
+      const randomY = Math.random() * (rect.height - padding * 2) + padding;
+      
+      setNoPos({
+        position: 'absolute',
+        left: `${randomX}px`,
+        top: `${randomY}px`,
+        transform: 'translate(-50%, -50%)',
+        transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      });
       setMoveCount(prev => prev + 1);
     } else {
-      // After moving 3 times, disappear on the next hover/click
       setNoVisible(false);
     }
   };
 
   if (accepted) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[450px] text-center space-y-8 animate-in fade-in zoom-in duration-700">
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-8 animate-in fade-in duration-1000">
         <div className="space-y-4">
-          <h2 className="text-6xl md:text-7xl font-romantic text-rose-600 font-bold">Yay! ❤️</h2>
-          <p className="text-2xl text-rose-500 font-medium">You've made me the happiest person alive!</p>
+          <h2 className="text-6xl md:text-8xl font-romantic text-rose-600 font-bold">Yay! ❤️</h2>
+          <p className="text-2xl text-rose-500 font-medium italic">I knew you'd say yes!</p>
         </div>
         
         <div className="relative flex items-center justify-center py-12">
-          {/* Glowing background aura */}
           <div className="absolute inset-0 bg-rose-400/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
           
-          {/* Beating Heart SVG */}
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             className="h-64 w-64 text-rose-500 drop-shadow-[0_20px_50px_rgba(225,29,72,0.4)] animate-heartbeat relative z-10" 
@@ -54,16 +63,16 @@ const ValentineProposal: React.FC = () => {
   return (
     <div 
       ref={containerRef} 
-      className="relative flex flex-col items-center justify-center min-h-[500px] bg-white/60 backdrop-blur-md rounded-[2.5rem] border-2 border-rose-100 overflow-hidden shadow-2xl"
+      className="w-full relative flex flex-col items-center justify-center min-h-[500px] bg-white/70 backdrop-blur-md rounded-[3rem] border-2 border-rose-100 shadow-2xl p-8"
     >
-      <h2 className="text-5xl md:text-7xl font-romantic text-rose-600 font-bold mb-16 text-center px-8 drop-shadow-sm leading-tight">
+      <h2 className="text-5xl md:text-7xl font-romantic text-rose-600 font-bold mb-20 text-center drop-shadow-sm leading-tight">
         Will you be my Valentine?
       </h2>
       
-      <div className="flex flex-row items-center justify-center gap-12 min-h-[120px] w-full">
+      <div className="flex flex-row items-center justify-center gap-12 min-h-[150px] w-full">
         <button
           onClick={() => setAccepted(true)}
-          className="px-14 py-6 bg-rose-500 hover:bg-rose-600 text-white text-3xl font-bold rounded-full shadow-[0_10px_30px_rgba(244,63,94,0.3)] transition-all hover:scale-110 active:scale-95 z-10"
+          className="px-16 py-7 bg-rose-500 hover:bg-rose-600 text-white text-4xl font-bold rounded-full shadow-[0_15px_35px_rgba(244,63,94,0.4)] transition-all hover:scale-110 active:scale-95 z-20"
         >
           Yes!
         </button>
@@ -72,23 +81,17 @@ const ValentineProposal: React.FC = () => {
           <button
             onMouseEnter={moveNoButton}
             onClick={moveNoButton}
-            style={{ 
-              position: 'absolute', 
-              top: noPos.top, 
-              left: noPos.left, 
-              transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              transform: 'translate(-50%, -50%)'
-            }}
-            className="px-8 py-3 bg-white/80 hover:bg-gray-50 text-gray-400 text-xl rounded-full shadow-lg z-10 hidden md:block border border-rose-50 whitespace-nowrap select-none"
+            style={noPos}
+            className="px-10 py-4 bg-white text-rose-300 text-2xl font-semibold rounded-full shadow-lg z-20 border border-rose-50 whitespace-nowrap select-none hover:text-rose-400"
           >
-            {moveCount === 0 ? "No" : moveCount === 1 ? "Wait..." : moveCount === 2 ? "Hey!" : "Catch me!"}
+            {moveCount === 0 ? "No" : moveCount === 1 ? "Wait!" : moveCount === 2 ? "Are you sure?" : "Oops!"}
           </button>
         )}
       </div>
 
-      <div className="mt-16 text-rose-300 opacity-40">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      <div className="mt-12 text-rose-200">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 animate-bounce opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       </div>
     </div>
